@@ -1,0 +1,24 @@
+# Node.js dependencies
+node_modules/
+
+# Logs
+npm-debug.log*
+*.log
+
+# Playwright test artifacts & reports
+playwright-report/
+test-results/
+
+# GitHub Actions workflow logs
+.github/workflows/*.log
+.github/workflows/*.env
+
+# Environment variables (Secrets)
+.env
+
+# VSCode settings
+.vscode/
+
+# MacOS & Linux system files
+.DS_Store
+
