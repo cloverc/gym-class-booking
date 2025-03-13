@@ -1,0 +1,34 @@
+name: Gym Class Booking Automation
+
+on:
+  schedule:
+    - cron: '55 6 * * *'  # Runs daily at 6:55 AM UTC
+  workflow_dispatch:      # Allows manual triggering
+
+jobs:
+  book-class:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: '18'  # Use Node.js 18 or latest LTS
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Install Playwright Browsers
+        run: npx playwright install --with-deps
+
+      - name: Run Gym Class Booking Script
+        env:
+          GYM_URL: ${{ secrets.GYM_URL }}
+          GYM_EMAIL: ${{ secrets.GYM_EMAIL }}
+          GYM_PASSWORD: ${{ secrets.GYM_PASSWORD }}
+          CLASS_SCHEDULE: ${{ secrets.CLASS_SCHEDULE }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+        run: npx tsx gymBooking.ts
