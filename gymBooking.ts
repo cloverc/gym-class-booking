@@ -32,7 +32,7 @@ async function sendSlackNotification(message: string) {
 function getBookingDetails(): { className: string | null; time: string | null; date: string; classIndex: number } {
     const today = new Date();
 
-    today.setDate(today.getDate() + 8);
+    today.setDate(today.getDate() + 9);
     const bookingDay = today.getDay().toString();
 
     if (CLASS_SCHEDULE[bookingDay]) {
@@ -48,15 +48,22 @@ function getBookingDetails(): { className: string | null; time: string | null; d
     }
 }
 
+// Helper function to format date
+function formatDate(dateStr: string): string {
+    const date = new Date(dateStr);
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' };
+    return new Intl.DateTimeFormat('en-GB', options).format(date).replace(',', '');
+}
+
 async function bookGymClass(): Promise<void> {
     const { className, time, date, classIndex } = getBookingDetails();
 
     if (!className || !time) {
-        console.log(`🚫 No class scheduled for ${date}. Skipping.`);
+        console.log(`🚫 No class scheduled for ${formatDate(date)}. Skipping.`);
         return;
     }
 
-    console.log(`🔍 Attempting to book occurrence #${classIndex} of "${className}" at ${time} on ${date}`);
+    console.log(`🔍 Attempting to book occurrence #${classIndex} of "${className}" at ${time} on ${formatDate(date)}`);
 
     const browser = await chromium.launch();
     const context = await browser.newContext({ bypassCSP: true, ignoreHTTPSErrors: true });
@@ -156,13 +163,13 @@ async function bookGymClass(): Promise<void> {
                     console.log(`📡 Booking API Response:`, bookingData);
 
                     if (bookingData.state === "booked") {
-                        console.log(`🎉 Successfully booked "${className}" at ${time} on ${date}!`);
-                        await sendSlackNotification(`🎉 Successfully booked "${className}" at ${time} on ${date}!`)
+                        console.log(`🎉 Successfully booked "${className}" at ${time} on ${formatDate(date)}!`);
+                        await sendSlackNotification(`🎉 Successfully booked "${className}" at ${time} on ${formatDate(date)}!`)
                         return;
                     } else if (bookingData.state === "queued") {
                         console.warn(`⚠️ Class is full, but you've been added to the waitlist.`);
       
-                        await sendSlackNotification(`⚠️ Gym booking waitlisted! Your class (${className} at ${time} on ${date}) is full, but you're on the waiting list.`);
+                        await sendSlackNotification(`⚠️ Gym booking waitlisted! Your class (${className} at ${time} on ${formatDate(date)}) is full, but you're on the waiting list.`);
         
                         return;
                     } else if (bookingData.state === "canceled") {
